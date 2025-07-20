@@ -1,4 +1,6 @@
+import { handlerAggregate } from "./aggCommand";
 import { type CommandsRegistry, registerCommand, runCommand } from "./commands";
+import { handlerAddFeed } from "./feeds";
 import { handlerReset } from "./resetCommand";
 import { handlerLogin, handlerRegister, handlerUsers } from "./users";
 
@@ -16,6 +18,8 @@ async function main() {
   registerCommand(commandRegistry, "register", handlerRegister);
   registerCommand(commandRegistry, "reset", handlerReset);
   registerCommand(commandRegistry, "users", handlerUsers);
+  registerCommand(commandRegistry, "agg", handlerAggregate);
+  registerCommand(commandRegistry, "addfeed", handlerAddFeed);
 
   const cmdName = cliArgs[0];
   const cmdArgs = cliArgs.slice(1);
