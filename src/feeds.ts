@@ -1,21 +1,32 @@
 import { readConfig } from "./config";
-import { createFeed } from "./db/feeds";
+import { createFeedFollow } from "./db/queries/feedFollows";
+import { createFeed, getFeeds } from "./db/queries/feeds";
 import { getUserByName } from "./db/queries/users";
 import { Feed, User } from "./db/schema";
 
-export async function handlerAddFeed(cmdName: string, ...cmdArgs: string[]) {
-  console.log("in addfeed");
-
+export async function handlerAddFeed(cmdName: string, user: User, ...cmdArgs: string[]) {
+  if (cmdArgs.length !== 2) {
+    throw new Error(`usage: ${cmdName} <feed_name> <url>`);
+  }
   const feedName = cmdArgs[0];
   const feedURL = cmdArgs[1];
-  const config = readConfig();
-  const userName = config.currentUserName;
-  const user = await getUserByName(userName);
-  const userID = user.id;
 
-  const feed = await createFeed(feedName, feedURL, userID);
+  const feed = await createFeed(feedName, feedURL, user.id);
+  if (!feed) {
+    throw new Error(`Failed to create feed`);
+  }
+
+  await createFeedFollow(user.id, feed.id);
 
   printFeed(feed, user);
+}
+
+export async function handlerFeeds(cmdName: string, ...cmdArgs: string[]) {
+  const feeds = await getFeeds();
+  for (const feed of feeds){
+    console.log(feed);
+  }
+  
 }
 
 function printFeed(feed: Feed, user: User) {
